@@ -1,0 +1,110 @@
+{% if base %}
+    <ul>
+    {% for question in rates %}
+        <li><a href="/polls//">{{ question }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    
+      <html>
+  <head>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+      google.charts.load('current', {'packages':['corechart']});
+      google.charts.setOnLoadCallback(drawChart);
+
+      function drawChart() {
+      	var chartArray = getChartData();
+        console.log(chartArray.length);
+        if (chartArray.length == 1) {
+        	document.getElementById('alert').style.display = "block";
+        	return false;
+        }
+
+        var data = google.visualization.arrayToDataTable(chartArray);
+
+        var options = {
+          title: 'Currency rate',
+          curveType: 'function',
+          legend: { position: 'right' }
+        };
+
+        var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+        chart.draw(data, options);
+      }
+
+	/*
+	Trying to form this like array
+
+    [
+      ['Year',       'USD',     'EUR'],
+      ['2004-05-01',  1.000,      0.400],
+      ['2004-05-02',  1.170,      0.460],
+      ['2004-05-03',  0.660,      1.120],
+      ['2004-05-04',  1.1030,     0.540]
+    ];
+
+	*/
+      function getChartData(){
+		result = JSON.parse(AJAXGet('/currency/apicurency/'));
+		var chartArray = [];
+		var legend = ["Year"];
+
+		for(var k in result) {
+			var code = result[k].code;
+			var rates = result[k].rates;
+			legend.push(code);
+			
+			for(var rateKey in rates) {
+				if (typeof chartArray[rates[rateKey].date] == 'undefined'){
+					chartArray[rates[rateKey].date] = [rates[rateKey].date];
+				}
+				chartArray[rates[rateKey].date].push(rates[rateKey].value);
+				if (rates[rateKey].value == 1.1132) alert(code+" boo");
+			}
+		}
+
+		chartArray.unshift(legend);
+
+		return prepareDataArray(chartArray);
+	  }
+
+ 	  //convert asociative array to numeric
+	  function prepareDataArray(dataArray){
+	  	var preparedDataArray = [];
+
+	  	for(var key in dataArray) {
+			preparedDataArray.push(dataArray[key]);
+		}
+
+	  	return preparedDataArray;
+	  }
+
+
+	  function AJAXGet(url){
+	  	var result = "";
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url, false);
+		xhr.send();
+
+		if (xhr.status != 200) {
+		  alert( xhr.status + ': ' + xhr.statusText ); 
+		} else {
+			var result = xhr.responseText;
+		}
+
+		return result;
+	  }
+
+	  window.onload = function(e){ 
+	    //showChart();
+	  }
+    </script>
+  </head>
+  <body>
+  <p id="alert" style="display: none">No charts are available.</p>
+    <div id="curve_chart" style="width: 900px; height: 500px"></div>
+  </body>
+</html>
+{% endif %}
