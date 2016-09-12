@@ -18,11 +18,7 @@ def index(request):
     context = {}
     return render(request, 'currency/index.html', context)
 
-def importrates(request, question_id):
-    #pageresponse = urllib.request.urlopen('http://api.fixer.io/latest')
-    #currencydata = json.loads(pageresponse.read().decode('utf-8'))
-    #response = "You're looking at the results of question %s."
-    #return HttpResponse(response % question_id)
+def importrates(request):
     availablecurencies = Currency.objects.values_list('code', flat=True)
 
     for count in range(1,11):
