@@ -1,5 +1,5 @@
-<html>
-  <head>
+{% extends "base.html" %}
+{% block content %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
       google.charts.load('current', {'packages':['corechart']});
@@ -67,6 +67,5 @@
   <body>
   <p id="alert" style="display: none">No charts are available.</p>
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
-  </body>
-</html>
+{% endblock %}
 

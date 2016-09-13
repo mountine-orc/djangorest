@@ -1,14 +1,12 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<html lang="en">
-<head>
-    <title>My Home Page</title>           
-	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css" media="screen" />
- 
-</head>
-<body>
-<p>Django Application</p>    
-<a href="/currency/importrates">Load last currency rates</a><br>
-<a href="/currency">See currency rate</a><br>
-<a href="/currency/ratechanges/">See dynamic of rate changes</a><br>
+{% extends "base.html" %}
+{% block content %}
+    
+<h2>Django Application</h2>    
+<ul>
+<li><a href="/currency/importrates">Load last currency rates</a></li>
+<li><a href="/currency">See currency rate</a></li>
+<li><a href="/currency/ratechanges/">See dynamic of rate changes</a></li>
+</ul>
 </body>
 </html>
+{% endblock %}

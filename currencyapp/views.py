@@ -10,7 +10,9 @@ from rest_framework import status
 import urllib, json
 import pprint
 import collections
+from django.contrib.auth.decorators import login_required
 
+@login_required
 def index(request):
     context = {}
     return render(request, 'currency/index.html', context)

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap-theme.min.css">
+    <title>{% block title %}Django test Project{% endblock %}</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="/">Django test Project</a>
+        </div>
+        {% if user.is_authenticated %}
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="/"><span class="glyphicon glyphicon-user"></span>{{ user.username }}</a></li>
+              <li><a href="/logout/?next="><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
+            </ul>
+        {% else %}
+            <div id="navbar" class="navbar-collapse collapse">
+              <form class="navbar-form navbar-right"  action="{% url 'login' %}" method="POST">
+              {% csrf_token %}
+                <div class="form-group">
+                  <input type="text" placeholder="User Name" class="form-control" name="username">
+                </div>
+                <div class="form-group">
+                  <input type="password" placeholder="Password" class="form-control" name="password">
+                </div>
+                <input type="hidden" name="next" value="/" />
+                <input type="submit" class="btn btn-success">Sign in</input>
+              </form>
+            </div><!--/.navbar-collapse -->
+        {% endif %}
+      </div>
+    </nav>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-4">
+          <br><br><br>
+          <div id="content">
+            {% block content %}{% endblock %}
+          </div>
+        </div>
+      </div>
+
+      <hr>
+
+      <footer>
+        <p>&copy; 2016 Company, Inc. </p>
+      </footer>
+
+    </div>
+
+
+</body>
+</html>

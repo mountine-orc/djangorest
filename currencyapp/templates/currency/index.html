@@ -1,10 +1,5 @@
-{% if base %}
-    <ul>
-    {% for question in rates %}
-        <li><a href="/polls//">{{ question }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
+{% extends "base.html" %}
+{% block content %}
     
       <html>
   <head>
@@ -106,4 +101,4 @@
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
   </body>
 </html>
-{% endif %}
+{% endblock %}
