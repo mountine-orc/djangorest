@@ -1,12 +1,4 @@
-{% if base %}
-    <ul>
-    {% for question in rates %}
-        <li><a href="/polls//">{{ question }}</a></li>
-    {% endfor %}
-    </ul>
-{% else %}
-    
-      <html>
+<html>
   <head>
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script type="text/javascript">
@@ -24,7 +16,7 @@
         var data = google.visualization.arrayToDataTable(chartArray);
 
         var options = {
-          title: 'Currency rate',
+          title: 'Currency rate changes',
           curveType: 'function',
           legend: { position: 'right' }
         };
@@ -47,37 +39,8 @@
 
 	*/
       function getChartData(){
-		result = JSON.parse(AJAXGet('/currency/api/curency/'));
-		var chartArray = [];
-		var legend = ["Year"];
-
-		for(var k in result) {
-			var code = result[k].code;
-			var rates = result[k].rates;
-			legend.push(code);
-			
-			for(var rateKey in rates) {
-				if (typeof chartArray[rates[rateKey].date] == 'undefined'){
-					chartArray[rates[rateKey].date] = [rates[rateKey].date];
-				}
-				chartArray[rates[rateKey].date].push(rates[rateKey].value);
-			}
-		}
-
-		chartArray.unshift(legend);
-
-		return prepareDataArray(chartArray);
-	  }
-
- 	  //convert asociative array to numeric
-	  function prepareDataArray(dataArray){
-	  	var preparedDataArray = [];
-
-	  	for(var key in dataArray) {
-			preparedDataArray.push(dataArray[key]);
-		}
-
-	  	return preparedDataArray;
+		result = JSON.parse(AJAXGet('/currency/api/curencychanges/'));
+		return result;
 	  }
 
 
@@ -106,4 +69,4 @@
     <div id="curve_chart" style="width: 900px; height: 500px"></div>
   </body>
 </html>
-{% endif %}
+

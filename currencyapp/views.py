@@ -9,14 +9,16 @@ from rest_framework.response import Response
 from rest_framework import status
 import urllib, json
 import pprint
+import collections
 
 def index(request):
-    #latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    #context = {'latest_question_list': latest_question_list}
-
-
     context = {}
     return render(request, 'currency/index.html', context)
+
+
+def rateChanges(request):
+    context = {}
+    return render(request, 'currency/rateChange.html', context)
 
 def importrates(request):
     availablecurencies = Currency.objects.values_list('code', flat=True)
@@ -49,11 +51,30 @@ class RateList(APIView):
 
 class RateChanges(APIView):
     """
-    Chnges all curencies.
+    Return dynamic of changes curencies
     """
     def get(self, request, format=None):
-        rates = Currency.objects.exclude(code= u'EUR')
-        for key in rates:
-            pprint(key)
-        serializer = CurrencySerializer(rates, many=True)
-        return Response(serializer.data)
+        currencies = Currency.objects.exclude(code= u'EUR')
+
+        legend = ["Year"];
+        rateDict = collections.OrderedDict();
+
+        for currency in currencies:
+            rates = currency.rates.order_by('date')
+            startPeriodValue = 0
+            code = currency.code
+            legend.append(code)
+            
+            for rate in rates:
+                print(str(rate.date))
+                if str(rate.date) not in rateDict:
+                    rateDict[str(rate.date)] = [str(rate.date)]
+                
+                if startPeriodValue == 0:
+                	startPeriodValue = rate.value
+                rateDict[str(rate.date)].append(rate.value/startPeriodValue);
+        
+        rateList = list(rateDict.values())
+        rateList.insert(0,legend)
+
+        return Response(rateList)
