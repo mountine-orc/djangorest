@@ -1,45 +1,53 @@
 from currencyapp.models import Currency, Rate
-from currencyapp.serializers import RateSerializer, CurrencySerializer
+from currencyapp.serializers import CurrencySerializer
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.utils import timezone
 from datetime import datetime, timedelta
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-import urllib, json
-import pprint
+import urllib
+import json
 import collections
+from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 
-@login_required
-def index(request):
-    context = {}
-    return render(request, 'currency/index.html', context)
+
+class ShowCurrencies(View):
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        context = {}
+        return render(request, 'currency/index.html', context)
 
 
-def rateChanges(request):
-    context = {}
-    return render(request, 'currency/rateChange.html', context)
+class ShowRateChanges(View):
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        context = {}
+        return render(request, 'currency/rateChange.html', context)
 
-def importrates(request):
-    availablecurencies = Currency.objects.values_list('code', flat=True)
 
-    for count in range(1,11):
-        date = (datetime.today() - timedelta(days=count)).date()
-        datestring = date.strftime('%Y-%m-%d')
-        pageresponse = urllib.request.urlopen('http://api.fixer.io/' + datestring)
-        currencydata = json.loads(pageresponse.read().decode('utf-8'))
-        
-        for key, value in currencydata["rates"].items():
-            if key in availablecurencies:
-                currency = Currency.objects.get(code=key)
-                pprint.pprint(currency)
-                q = Rate(value=value, date=date, currency=currency)
-                pprint.pprint(q)
-                q.save()
+class ImportRates(View):
+    """
+    Import currency rates from api.fixer.io
+    """
+    @method_decorator(login_required)
+    def get(self, request, *args, **kwargs):
+        available_currencies = Currency.objects.values_list('code', flat=True)
 
-    return HttpResponse("Currencies is exported")
+        for count in range(1,11):
+            date = (datetime.today() - timedelta(days=count)).date()
+            date_string = date.strftime('%Y-%m-%d')
+            page_response = urllib.request.urlopen('http://api.fixer.io/' + date_string)
+            currency_data = json.loads(page_response.read().decode('utf-8'))
+
+            for key, value in currency_data["rates"].items():
+                if key in available_currencies:
+                    currency = Currency.objects.get(code=key)
+                    Rate.objects.update_or_create(date=date, currency=currency, defaults={'value': value})
+
+        return HttpResponse("Currencies is imported")
+
 
 class RateList(APIView):
     """
@@ -59,24 +67,24 @@ class RateChanges(APIView):
         currencies = Currency.objects.exclude(code= u'EUR')
 
         legend = ["Year"];
-        rateDict = collections.OrderedDict();
+        rate_dict = collections.OrderedDict();
 
         for currency in currencies:
             rates = currency.rates.order_by('date')
-            startPeriodValue = 0
+            start_period_value = 0
             code = currency.code
             legend.append(code)
             
-            for rate in rates:
-                print(str(rate.date))
-                if str(rate.date) not in rateDict:
-                    rateDict[str(rate.date)] = [str(rate.date)]
+            for i, rate in enumerate(rates):
+                if str(rate.date) not in rate_dict:
+                    rate_dict[str(rate.date)] = [str(rate.date)]
                 
-                if startPeriodValue == 0:
-                	startPeriodValue = rate.value
-                rateDict[str(rate.date)].append(rate.value/startPeriodValue);
-        
-        rateList = list(rateDict.values())
-        rateList.insert(0,legend)
+                if i == 0:
+                    start_period_value = rate.value
 
-        return Response(rateList)
+                rate_dict[str(rate.date)].append(rate.value/start_period_value)
+        
+        rate_list = list(rate_dict.values())
+        rate_list.insert(0, legend)
+
+        return Response(rate_list)

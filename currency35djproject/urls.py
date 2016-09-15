@@ -19,8 +19,8 @@ from django.views.generic.base import TemplateView
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='home/index.html'), name='home'),
     url('^', include('django.contrib.auth.urls')),
+    url('^', include('baseapp.urls')),
     url(r'^currency/', include('currencyapp.urls')),
     url(r'^admin/', admin.site.urls),
 ]
