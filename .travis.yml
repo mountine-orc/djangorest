@@ -13,6 +13,7 @@ before_script:
   - mysql -u root -e 'CREATE DATABASE djangorest;'
   - mysql -u root -e "CREATE USER 'djangorest'@'localhost' IDENTIFIED BY 'djangorest';"
   - mysql -u root -e "GRANT ALL ON djangorest.* TO 'djangorest'@'localhost';"
+  - mysql -u root -e "GRANT ALL ON test_djangorest.* TO 'djangorest'@'localhost';"
   - python manage.py migrate
 script:
   - python manage.py test
